@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:background="@drawable/bg_rectangular_shape"
+        android:elevation="10dp">
+
+        <TextView
+            android:padding="2dp"
+            android:layout_marginStart="4dp"
+
+            android:textSize="14sp"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"
+            android:textAllCaps="true"
+
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:id="@+id/tvUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Rawat"
+            />
+
+        <TextView
+            android:padding="2dp"
+            android:layout_marginStart="4dp"
+
+            android:textSize="14sp"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"
+            android:textAllCaps="true"
+
+            app:layout_constraintTop_toBottomOf="@+id/tvUserName"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:id="@+id/tvUserGender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Male"
+            />
+
+        <TextView
+            android:padding="2dp"
+            android:layout_marginStart="4dp"
+
+            android:textSize="14sp"
+            android:gravity="start"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"
+            android:textAllCaps="true"
+
+            app:layout_constraintTop_toBottomOf="@+id/tvUserGender"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:id="@+id/tvUserEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Rawat@gmail.com"
+            />
+
+        <TextView
+            android:padding="2dp"
+            android:layout_marginStart="4dp"
+
+            android:textSize="14sp"
+            android:gravity="start"
+            android:textAlignment="textStart"
+            android:textColor="@color/black"
+            android:textAllCaps="true"
+
+            app:layout_constraintTop_toBottomOf="@+id/tvUserEmail"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:id="@+id/tvUserStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Active"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
