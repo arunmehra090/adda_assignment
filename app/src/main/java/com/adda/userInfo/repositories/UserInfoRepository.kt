@@ -26,7 +26,7 @@ class UserInfoRepository(
     }
     override val coroutineContext: CoroutineContext = Dispatchers.IO + job + exceptionHandler
 
-    fun fetchUserInfoDetails() = liveData {
+    fun fetchUserInfoDetails() = liveData(Dispatchers.IO) {
         val apiResponse = apiService.getUserInfoByLiveData()
         try {
             apiResponse.body()?.data?.let {
