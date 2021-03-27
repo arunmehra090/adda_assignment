@@ -1,6 +1,7 @@
 package com.adda.remote
 
 import com.adda.BuildConfig
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -17,7 +18,7 @@ object RetrofitBuilder {
     private fun getRetrofit(okHttpClient: OkHttpClient = getOkHttpClient()): Retrofit {
         return Retrofit.Builder()
                 .baseUrl(WEB_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
                 .client(okHttpClient)
                 .build()
     }

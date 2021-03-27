@@ -1,17 +1,12 @@
 package com.adda.userInfo.repositories
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import com.adda.models.ResultState
-import com.adda.models.UserInfoResponseModel
 import com.adda.remote.ApiService
 import com.adda.roomdb.AppDatabase
-import com.adda.utils.ConnectionDetector
+import com.adda.roomdb.entities.UserInfoModel
 import kotlinx.coroutines.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
@@ -31,70 +26,36 @@ class UserInfoRepository(
     }
     override val coroutineContext: CoroutineContext = Dispatchers.IO + job + exceptionHandler
 
-    private var isServiceExecuted = false
-    private val userInfoLiveData = MutableLiveData<ResultState>()
-
-    fun getUserInfoLiveData(): LiveData<ResultState> = userInfoLiveData
-
-    init {
-        isServiceExecuted = true
-    }
-
-    fun fetchUserInfoDetails() {
-
-        fetchUserInfoDetailsFromLocalDb()
-
-        if (ConnectionDetector.isConnectingToInternet()) {
-            apiService.getUserInfo().enqueue(object : Callback<UserInfoResponseModel> {
-                override fun onResponse(call: Call<UserInfoResponseModel>, response: Response<UserInfoResponseModel>) {
-                    try {
-                        response.apply {
-                            if (isSuccessful && code() == 200 && body() is UserInfoResponseModel) {
-                                (body() as UserInfoResponseModel).apply {
-                                    if (data.isNotEmpty() && isServiceExecuted) {
-                                        userInfoLiveData.postValue(ResultState.Success(data))
-
-                                        // insert data into database
-                                        launch {
-                                            withContext(Dispatchers.IO) {
-                                                appDatabase.userInfoDao().insertUserInfo(data)
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                if (isServiceExecuted) {
-                                    userInfoLiveData.postValue(ResultState.Error("Some error occurred"))
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        cancel(CancellationException(e.message))
-                        if (isServiceExecuted) {
-                            userInfoLiveData.postValue(ResultState.Error("Some error occurred"))
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<UserInfoResponseModel>, t: Throwable) {
-                    cancel(CancellationException(t.message))
-                    if (isServiceExecuted) {
-                        userInfoLiveData.postValue(ResultState.Error(t.message ?: "Some error occurred"))
-                    }
-                }
-            })
+    fun fetchUserInfoDetails() = liveData {
+        val apiResponse = apiService.getUserInfoByLiveData()
+        try {
+            apiResponse.body()?.data?.let {
+                emit(ResultState.Success(it))
+                insertUserInfoIntoLocalDb(it)
+            } ?: emit(ResultState.Error("Some error occurred"))
+        } catch (e: Exception) {
+            emit(ResultState.Error("Some error occurred"))
+            cancel(CancellationException(e.message))
         }
     }
 
     // fetch user info data from local database
-    private fun fetchUserInfoDetailsFromLocalDb() {
+    fun fetchUserInfoDetailsFromLocalDb() = liveData(Dispatchers.IO) {
+        try {
+            appDatabase.userInfoDao().getAllUserInfo().let {
+                emit(ResultState.Success(it))
+            }
+        } catch (e: Exception) {
+            cancel(CancellationException(e.message))
+            emit(ResultState.Error(e.message ?: "Some error occurred"))
+        }
+    }
+
+    private fun insertUserInfoIntoLocalDb(list: ArrayList<UserInfoModel>) {
+        // insert data into database
         launch {
-            try {
-                appDatabase.userInfoDao().getAllUserInfo().let {
-                    userInfoLiveData.postValue(ResultState.Success(it))
-                }
-            } catch (e: Exception) {
-                cancel(CancellationException(e.message))
+            withContext(Dispatchers.IO) {
+                appDatabase.userInfoDao().insertUserInfo(list)
             }
         }
     }
@@ -112,7 +73,6 @@ class UserInfoRepository(
     }
 
     fun cancelAllOperation() {
-        isServiceExecuted = false
         cancelJob()
     }
 }

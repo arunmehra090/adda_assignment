@@ -1,20 +1,24 @@
 package com.adda.userInfo.views.activities
 
 import android.os.Bundle
+import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.adda.base.Injection
 import com.adda.databinding.ActivityMainBinding
 import com.adda.extension.gone
 import com.adda.extension.show
 import com.adda.models.ResultState
+import com.adda.remote.RetrofitBuilder
 import com.adda.userInfo.viewmodels.UserInfoViewModel
 import com.adda.userInfo.views.adapters.UserInfoAdapter
 import kotlinx.android.synthetic.main.content_main.view.*
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +33,10 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         setupViewModel()
         fetchUserInfoDetails()
+
+        binding.ivRefresh.setOnClickListener {
+            fetchUserInfoDetails()
+        }
     }
 
     private fun setupViewModel() {
@@ -42,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             binding.mainLayout.apply {
                 progressBar.show()
                 fetchUserDetailsService()
-                getUserInfoLiveData().observe(this@MainActivity, {
+                mResponseLiveData.observe(this@MainActivity, {
                     progressBar.gone()
                     when (it) {
                         is ResultState.Success -> {
