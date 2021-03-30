@@ -35,7 +35,7 @@ class UserInfoRepository(
             } ?: emit(ResultState.Error("Some error occurred"))
         } catch (e: Exception) {
             emit(ResultState.Error("Some error occurred"))
-            cancel(CancellationException(e.message))
+            exceptionHandler.cancelChildren(CancellationException(e.message))
         }
     }
 
@@ -46,17 +46,20 @@ class UserInfoRepository(
                 emit(ResultState.Success(it))
             }
         } catch (e: Exception) {
-            cancel(CancellationException(e.message))
+            exceptionHandler.cancelChildren(CancellationException(e.message))
             emit(ResultState.Error(e.message ?: "Some error occurred"))
         }
     }
 
     private fun insertUserInfoIntoLocalDb(list: ArrayList<UserInfoModel>) {
-        // insert data into database
         launch {
             withContext(Dispatchers.IO) {
-                appDatabase.userInfoDao().deleteAllUserInfo()
-                appDatabase.userInfoDao().insertUserInfo(list)
+                try {
+                    appDatabase.userInfoDao().deleteAllUserInfo()
+                    appDatabase.userInfoDao().insertUserInfo(list)
+                } catch (e: Exception) {
+                    exceptionHandler.cancelChildren(CancellationException(e.message))
+                }
             }
         }
     }
