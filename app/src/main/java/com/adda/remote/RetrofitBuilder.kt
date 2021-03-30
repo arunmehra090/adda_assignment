@@ -33,8 +33,8 @@ object RetrofitBuilder {
     private fun getOkHttpClient(okHttpLogger: HttpLoggingInterceptor = getHttpLogger()): OkHttpClient {
         return OkHttpClient.Builder()
                 .addInterceptor(okHttpLogger)
-                .readTimeout(1000L,TimeUnit.SECONDS)
-                .callTimeout(1000L, TimeUnit.SECONDS)
+                .readTimeout(10L,TimeUnit.SECONDS)
+                .callTimeout(10L, TimeUnit.SECONDS)
                 .build()
     }
 
