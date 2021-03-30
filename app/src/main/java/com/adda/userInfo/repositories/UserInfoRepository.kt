@@ -55,6 +55,7 @@ class UserInfoRepository(
         // insert data into database
         launch {
             withContext(Dispatchers.IO) {
+                appDatabase.userInfoDao().deleteAllUserInfo()
                 appDatabase.userInfoDao().insertUserInfo(list)
             }
         }
